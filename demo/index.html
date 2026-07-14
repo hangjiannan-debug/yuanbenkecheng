@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>园本课程建设平台 - AI驻园专家</title>
+<link rel="stylesheet" href="styles.css">
+<script src="db.js"></script>
+<script src="auth.js"></script>
+</head>
+<body>
+
+<!-- ========== Welcome Page ========== -->
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-card">
+    <div class="welcome-icon">🌳</div>
+    <h1>园本课程建设平台</h1>
+    <p class="subtitle">AI驻园专家 · 引领园本课程建设全流程</p>
+    <p class="tagline">园长建设课程 · 教师生成课程 · 记录沉淀成长</p>
+    <div class="welcome-features">
+      <span>📋 园本课程建设</span><span>📝 课程生成</span><span>📂 我的园本课程</span>
+    </div>
+    <button class="btn btn-primary" onclick="showLogin()" style="font-size:16px;padding:14px 40px;">
+      进入平台 →
+    </button>
+  </div>
+</div>
+
+<!-- ========== Login / Register Panel ========== -->
+<div class="auth-overlay" id="authOverlay" style="display:none;">
+  <div class="auth-card" id="authCard">
+    <!-- Login Form -->
+    <div id="loginForm">
+      <h2>🔐 登录</h2>
+      <div class="form-group">
+        <label>手机号</label>
+        <input type="text" id="loginPhone" placeholder="请输入手机号">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="loginPwd" placeholder="请输入密码">
+      </div>
+      <p class="auth-error" id="loginError" style="display:none;color:#e74c3c;"></p>
+      <button class="btn btn-primary" onclick="doLogin()" style="width:100%;">登录</button>
+      <p class="auth-switch">还没有账号？<a href="javascript:void(0)" onclick="showRegister()">园长注册</a></p>
+    </div>
+    <!-- Register Form (Principal only) -->
+    <div id="registerForm" style="display:none;">
+      <h2>📝 园长注册</h2>
+      <div class="form-group">
+        <label>园所名称</label>
+        <input type="text" id="regKinder" placeholder="请输入园所全称">
+      </div>
+      <div class="form-group">
+        <label>园长姓名</label>
+        <input type="text" id="regName" placeholder="请输入姓名">
+      </div>
+      <div class="form-group">
+        <label>手机号</label>
+        <input type="text" id="regPhone" placeholder="请输入手机号">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="regPwd" placeholder="请设置密码（6位以上）">
+      </div>
+      <p class="auth-error" id="regError" style="display:none;color:#e74c3c;"></p>
+      <button class="btn btn-primary" onclick="doRegister()" style="width:100%;">注册</button>
+      <p class="auth-switch">已有账号？<a href="javascript:void(0)" onclick="showLogin()">返回登录</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script src="main.js"></script>
+
+</body>
+</html>
