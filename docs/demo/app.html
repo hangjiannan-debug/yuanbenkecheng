@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>园本课程建设平台</title>
+<link rel="stylesheet" href="styles.css">
+<script src="db.js"></script>
+<script src="auth.js"></script>
+</head>
+<body style="overflow:hidden;">
+
+<!-- Top Navigation -->
+<nav class="top-nav" id="topNav">
+  <div class="nav-brand">🌳 园本课程建设平台</div>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" data-tab="construction" onclick="switchTab('construction')">📋 园本课程建设</button>
+    <button class="nav-tab" data-tab="generate" onclick="switchTab('generate')">📝 课程生成</button>
+    <button class="nav-tab" data-tab="my-courses" onclick="switchTab('my-courses')">📂 我的园本课程</button>
+  </div>
+  <div class="nav-user">
+    <span id="navUserName"></span>
+    <div class="nav-dropdown">
+      <button class="nav-user-btn" onclick="toggleUserMenu()">▼</button>
+      <div class="nav-dropdown-content" id="userMenu" style="display:none;">
+        <a href="javascript:void(0)" onclick="showAccountManage()" id="menuAccountManage" style="display:none;">👥 账号管理</a>
+        <a href="javascript:void(0)" onclick="logout()">🚪 退出登录</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Tab 1: 园本课程建设 -->
+<div class="tab-content active" id="tab-construction">
+  <div class="app-container" id="appContainer">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-text">🌳 园本课程建设</div>
+        <div class="logo-sub">AI驻园专家平台</div>
+      </div>
+      <ul class="step-nav" id="stepNav">
+        <li><button onclick="goToStep(0)" data-step="0"><span class="step-num">📝</span><span class="step-label">输入信息<small>园所基本情况</small></span></button></li>
+        <li><button onclick="goToStep(1)" data-step="1" disabled><span class="step-num">1</span><span class="step-label">园所诊断<small>园所诊断师</small></span></button></li>
+        <li><button onclick="goToStep(2)" data-step="2" disabled><span class="step-num">2</span><span class="step-label">政策研究<small>政策研究员</small></span></button></li>
+        <li><button onclick="goToStep(3)" data-step="3" disabled><span class="step-num">3</span><span class="step-label">地域挖掘<small>地域文化挖掘师</small></span></button></li>
+        <li><button onclick="goToStep(4)" data-step="4" disabled><span class="step-num">4</span><span class="step-label">特色定位<small>特色定位专家组</small></span></button></li>
+        <li><button onclick="goToStep(5)" data-step="5" disabled><span class="step-num">5</span><span class="step-label">课程架构<small>课程架构师</small></span></button></li>
+        <li><button onclick="goToStep(6)" data-step="6" disabled><span class="step-num">6</span><span class="step-label">课程地图<small>地图设计师</small></span></button></li>
+        <li><button onclick="goToStep(7)" data-step="7" disabled><span class="step-num">7</span><span class="step-label">实施方案<small>课程实施专家组</small></span></button></li>
+        <li><button onclick="goToStep(8)" data-step="8" disabled><span class="step-num">8</span><span class="step-label">评价体系<small>课程评价专家组</small></span></button></li>
+        <li><button onclick="goToStep(9)" data-step="9" disabled><span class="step-num">9</span><span class="step-label">评审委员会<small>课程评审委员会</small></span></button></li>
+        <li><button onclick="goToStep(10)" data-step="10" disabled><span class="step-num">📄</span><span class="step-label">报告汇总<small>完整课程体系</small></span></button></li>
+      </ul>
+    </aside>
+    <main class="main-content" id="mainContent">
+      <div class="step-content active" id="step0">
+        <div class="card">
+          <div class="card-header"><h2>📝 园所信息录入</h2><p class="card-desc">请尽可能详细地填写以下信息，AI驻园专家将基于这些信息为您生成完整的园本课程体系</p><div class="progress-bar"><div class="progress-fill" style="width:0%" id="formProgress"></div></div></div>
+          <div class="form-section"><div class="form-section-title"><span class="icon">🏫</span> 一、园所基本信息</div><div class="form-grid"><div class="form-group"><label>园所名称 <span class="hint">*必填</span></label><input type="text" id="f_name" placeholder="请输入园所全称" oninput="updateFormProgress()"></div><div class="form-group"><label>所在地</label><input type="text" id="f_location" placeholder="省/市/区" oninput="updateFormProgress()"></div><div class="form-group"><label>办园性质</label><select id="f_type" onchange="updateFormProgress()"><option value="">请选择</option><option value="公办">公办</option><option value="民办普惠">民办普惠</option><option value="民办高端">民办高端</option><option value="企业办园">企业办园</option></select></div><div class="form-group"><label>班级数</label><input type="number" id="f_classCount" placeholder="如：12" min="1" oninput="updateFormProgress()"></div><div class="form-group"><label>幼儿数</label><input type="number" id="f_studentCount" placeholder="如：360" min="1" oninput="updateFormProgress()"></div></div></div>
+          <div class="form-section"><div class="form-section-title"><span class="icon">⭐</span> 二、园所特色</div><div class="form-group full"><textarea id="cf_features" rows="2" placeholder="请输入园所特色方向，多个请用逗号或顿号分隔" oninput="updateFormProgress()"></textarea><div class="input-example">💡 <strong>示例：</strong>自然教育、劳动教育、阅读、足球、非遗、科学教育、艺术、体育</div></div></div>
+          <div class="form-section"><div class="form-section-title"><span class="icon">🗺️</span> 三、地域资源</div><div class="form-group full"><textarea id="cf_resources" rows="2" placeholder="请输入园所周边可利用的地域资源，多个请用逗号或顿号分隔" oninput="updateFormProgress()"></textarea><div class="input-example">💡 <strong>示例：</strong>茶园、农田、海洋、森林、博物馆、红色基地、河流、山川</div></div></div>
+          <div class="form-section"><div class="form-section-title"><span class="icon">🎯</span> 四、培养目标</div><div class="form-group full"><textarea id="cf_goals" rows="2" placeholder="请输入园所希望培养的儿童关键品质，多个请用逗号或顿号分隔" oninput="updateFormProgress()"></textarea><div class="input-example">💡 <strong>示例：</strong>健康儿童、自主儿童、探究儿童、创造儿童、友善儿童、自信儿童</div></div></div>
+          <div class="form-section"><div class="form-section-title"><span class="icon">🚀</span> 五、未来规划</div><div class="form-group full"><textarea id="cf_plans" rows="2" placeholder="请输入园所近期发展目标与规划，多个请用逗号或顿号分隔" oninput="updateFormProgress()"></textarea><div class="input-example">💡 <strong>示例：</strong>创建示范园、课程评比、成果奖、等级评定</div></div></div>
+          <div class="form-section"><div class="form-section-title"><span class="icon">🔬</span> 六、微观环境补充</div><div class="sub-section"><div class="sub-section-title">（1）园内微环境</div><div class="form-group full"><textarea id="cu_micro_env" rows="2" placeholder="请描述园内的微环境特征，多个请用逗号或顿号分隔" oninput="updateFormProgress()"></textarea><div class="input-example">💡 <strong>示例：</strong>菜园、沙地、水池、坡地、柚子树、桂花树、塑胶操场</div></div></div><div class="sub-section"><div class="sub-section-title">（2）周边300米资源</div><div class="form-group full"><textarea id="cu_nearby" rows="2" placeholder="请描述园所周边300米内的社区资源，多个请用逗号或顿号分隔" oninput="updateFormProgress()"></textarea><div class="input-example">💡 <strong>示例：</strong>社区菜市场、公园、河道、商铺、博物馆、消防站、花店、图书馆</div></div></div><div class="sub-section"><div class="sub-section-title">（3）教师行为画像</div><div class="form-group full"><label>教师风格</label><textarea id="cu_teacher" rows="2" placeholder="请描述园所教师的教学风格特点" oninput="updateFormProgress()"></textarea><div class="input-example">💡 <strong>示例：</strong>（表达型）→ 课程偏向：故事化、角色扮演；（科学型）→ 课程偏向：实验、探究</div></div></div><div class="sub-section"><div class="sub-section-title">（4）幼儿行为画像</div><div class="form-group full"><label>幼儿特点</label><textarea id="cu_child" rows="2" placeholder="请描述园所幼儿的整体行为特点" oninput="updateFormProgress()"></textarea><div class="input-example">💡 <strong>示例：</strong>活跃、喜欢跑跳；安静、喜欢搭建</div></div></div></div>
+        </div>
+        <div class="step-footer"><span class="hint">💡 填写越详细，生成的课程体系越精准</span><button class="btn btn-primary" onclick="submitForm()" id="btnSubmit">提交信息，启动AI诊断 →</button></div>
+      </div>
+      <div class="step-content" id="step1"></div><div class="step-content" id="step2"></div><div class="step-content" id="step3"></div><div class="step-content" id="step4"></div><div class="step-content" id="step5"></div><div class="step-content" id="step6"></div><div class="step-content" id="step7"></div><div class="step-content" id="step8"></div><div class="step-content" id="step9"></div><div class="step-content" id="step10"></div>
+    </main>
+  </div>
+</div>
+
+<!-- Tab 2: 课程生成 -->
+<div class="tab-content" id="tab-generate">
+  <div class="card" style="max-width:1660px;margin:20px auto;width:100%;">
+    <h2>📝 课程生成</h2>
+    <p class="card-desc">选择园本课程方案，生成具体的教学计划和资源包</p>
+    <div id="generateContent"><p style="text-align:center;padding:40px;color:#999;">请先从「我的园本课程」中选择一个方案，或园长先生成方案</p></div>
+  </div>
+</div>
+
+<!-- Tab 3: 我的园本课程 -->
+<div class="tab-content" id="tab-my-courses">
+  <div class="my-courses-layout" id="myCoursesLayout">
+    <div class="mc-sidebar" id="mcSidebar">
+      <div class="mc-sidebar-header"><input type="text" class="mc-search" placeholder="🔍 搜索方案..." id="mcSearch" oninput="filterPlans()"></div>
+      <div class="mc-plan-list" id="mcPlanList"><p style="text-align:center;padding:40px;color:#999;">暂无方案</p></div>
+    </div>
+    <div class="mc-detail" id="mcDetail">
+      <div class="mc-empty-state"><div style="font-size:48px;">📂</div><p>选择一个方案查看详情</p></div>
+    </div>
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script src="main.js"></script>
+<script>
+(function() {
+  var user = requireAuth();
+  if (!user) return;
+  document.getElementById('navUserName').textContent = user.name + '（' + user.kinderName + '）';
+  if (user.role === 'principal') {
+    document.getElementById('menuAccountManage').style.display = 'block';
+    document.getElementById('navTabs').querySelector('[data-tab="construction"]').style.display = '';
+  } else {
+    document.getElementById('navTabs').querySelector('[data-tab="construction"]').style.display = 'none';
+  }
+  switchTab(user.role === 'principal' ? 'construction' : 'generate');
+})();
+</script>
+</body>
+</html>
