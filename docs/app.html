@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -106,6 +106,15 @@
     document.getElementById('navTabs').querySelector('[data-tab="construction"]').style.display = 'none';
   }
   switchTab(user.role === 'principal' ? 'construction' : 'generate');
+
+  // 游客模式：自动加载演示数据并运行 AI 流程
+  if (user.isGuest || window.location.search.includes('guest=1')) {
+    setTimeout(function() {
+      if (typeof loadGuestDemo === 'function') {
+        loadGuestDemo();
+      }
+    }, 300);
+  }
 })();
 </script>
 </body>

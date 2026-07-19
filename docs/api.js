@@ -18,8 +18,8 @@ var AI_CONFIG = {
  * 调用 AI 生成内容
  */
 async function callAI(systemPrompt, userPrompt) {
-  // 演示模式：直接返回失败，使用模板版本
-  if (DEMO_MODE) {
+  // 演示模式 / 游客模式：直接返回失败，使用模板版本
+  if (DEMO_MODE || (typeof isGuestUser === 'function' && isGuestUser())) {
     return { success: false, content: '', error: 'Demo mode: using template version' };
   }
 

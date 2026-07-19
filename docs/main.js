@@ -1009,6 +1009,48 @@ function startApp() {
   updateNavButtons();
 }
 
+// ========== Guest Demo Mode ==========
+const guestDemoData = {
+  name: '北京东城区红星幼儿园',
+  location: '北京市东城区',
+  type: '公办',
+  classCount: '12',
+  studentCount: '360',
+  features: ['自然教育', '劳动教育', '科学教育'],
+  resources: ['社区公园', '城市菜园', '青少年科技馆', '老年活动中心'],
+  goals: ['健康儿童', '探究儿童', '创造儿童', '友善儿童'],
+  plans: ['创建区级示范园', '申报课程建设成果奖'],
+  microEnv: ['沙水区', '种植园', '攀爬墙', '阅读角', '美工区'],
+  nearbyResources: ['社区公园', '小菜场', '图书馆', '消防站'],
+  teacher: ['亲和型'],
+  child: ['好奇好动', '喜欢探究']
+};
+
+async function loadGuestDemo() {
+  const user = getCurrentUser();
+  if (!user || !user.isGuest) return;
+
+  // 1. 填充表单
+  document.getElementById('f_name').value = guestDemoData.name;
+  document.getElementById('f_location').value = guestDemoData.location;
+  document.getElementById('f_type').value = guestDemoData.type;
+  document.getElementById('f_classCount').value = guestDemoData.classCount;
+  document.getElementById('f_studentCount').value = guestDemoData.studentCount;
+  document.getElementById('cf_features').value = guestDemoData.features.join('、');
+  document.getElementById('cf_resources').value = guestDemoData.resources.join('、');
+  document.getElementById('cf_goals').value = guestDemoData.goals.join('、');
+  document.getElementById('cf_plans').value = guestDemoData.plans.join('、');
+  document.getElementById('cu_micro_env').value = guestDemoData.microEnv.join('、');
+  document.getElementById('cu_nearby').value = guestDemoData.nearbyResources.join('、');
+  document.getElementById('cu_teacher').value = guestDemoData.teacher.join('、');
+  document.getElementById('cu_child').value = guestDemoData.child.join('、');
+
+  updateFormProgress();
+
+  // 2. 自动提交并运行全部 9 个 Agent
+  submitForm();
+}
+
 function goToStep(step) {
   if (step > state.maxUnlockedStep) return;
   if (state.isGenerating) return;
@@ -1369,6 +1411,21 @@ function finishAgent(agent, stepEl, index, output) {
   }
 
   updateNavButtons();
+
+  // 游客模式：自动连续运行全部 Agent
+  if (typeof isGuestUser === 'function' && isGuestUser()) {
+    setTimeout(function() {
+      state.agentConfirmed[agent.id] = true;
+      state.maxUnlockedStep = index + 2;
+      updateNavButtons();
+      if (index + 1 < agents.length) {
+        runAgent(index + 1);
+      } else {
+        buildReport();
+        goToStep(10);
+      }
+    }, 200);
+  }
 }
 
 // ========== Confirmation Logic ==========
@@ -1699,40 +1756,45 @@ async function generateAndSavePlan() {
     return;
   }
 
-  alert('园本课程方案已生成！AI 正在后台优化方案，可前往「我的园本课程」查看。');
+  // 演示版提示
+  if (typeof isGuestUser === 'function' && isGuestUser()) {
+    alert('演示方案已生成！可前往「我的园本课程」查看完整方案。');
+  } else {
+    alert('园本课程方案已生成！AI 正在后台优化方案，可前往「我的园本课程」查看。');
+  }
 
-  // Step 3: 后台异步调用 API 优化
-  try {
-    var systemPrompt = buildPlanSystemPrompt(data);
-    var userPrompt = '请根据以上园所信息，生成一份完整的园本课程方案。';
-    var result = await callAI(systemPrompt, userPrompt);
+  // Step 3: 后台异步调用 API 优化（演示版跳过，避免暴露 API Key）
+  if (typeof isGuestUser !== 'function' || !isGuestUser()) {
+    try {
+      var systemPrompt = buildPlanSystemPrompt(data);
+      var userPrompt = '请根据以上园所信息，生成一份完整的园本课程方案。';
+      var result = await callAI(systemPrompt, userPrompt);
 
-    if (result.success && result.content) {
-      var aiHtml = result.content;
-      // 提取 AI 返回的 HTML 中的 curriculum-doc 部分
-      var docMatch = aiHtml.match(/<div class="curriculum-doc"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
-      if (!docMatch) {
-        docMatch = aiHtml.match(/<div class="curriculum-doc"[^>]*>([\s\S]*?)<\/div>\s*$/i);
+      if (result.success && result.content) {
+        var aiHtml = result.content;
+        var docMatch = aiHtml.match(/<div class="curriculum-doc"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*<\/body>/i);
+        if (!docMatch) {
+          docMatch = aiHtml.match(/<div class="curriculum-doc"[^>]*>([\s\S]*?)<\/div>\s*$/i);
+        }
+        if (docMatch) {
+          aiHtml = '<div class="curriculum-doc" style="max-width:100%;margin:0;">' + docMatch[1] + '</div>';
+        }
+        var existing = await dbGet('curriculum_plans', planId);
+        await dbPut('curriculum_plans', {
+          id: planId, kinderId: user.kinderId, name: data.name, fw: fw, rw: rw, gw: gw,
+          formData: JSON.parse(JSON.stringify(data)),
+          htmlContent: aiHtml,
+          aiOptimized: true,
+          createdAt: existing ? existing.createdAt : new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+        console.log('AI 优化完成，方案已更新');
+      } else {
+        console.log('AI 优化失败，保留模板版本: ' + result.error);
       }
-      if (docMatch) {
-        aiHtml = '<div class="curriculum-doc" style="max-width:100%;margin:0;">' + docMatch[1] + '</div>';
-      }
-      // 更新 IndexedDB
-      var existing = await dbGet('curriculum_plans', planId);
-      await dbPut('curriculum_plans', {
-        id: planId, kinderId: user.kinderId, name: data.name, fw: fw, rw: rw, gw: gw,
-        formData: JSON.parse(JSON.stringify(data)),
-        htmlContent: aiHtml,
-        aiOptimized: true,
-        createdAt: existing ? existing.createdAt : new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
-      console.log('AI 优化完成，方案已更新');
-    } else {
-      console.log('AI 优化失败，保留模板版本: ' + result.error);
+    } catch (e) {
+      console.log('AI 优化异常: ' + e.message);
     }
-  } catch (e) {
-    console.log('AI 优化异常: ' + e.message);
   }
 
   if (typeof switchTab === 'function') {

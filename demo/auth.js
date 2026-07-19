@@ -73,12 +73,18 @@ async function guestLogin() {
 
     const user = {
       id: accountId, role: 'principal', name,
-      phone, kinderId, kinderName
+      phone, kinderId, kinderName,
+      isGuest: true
     };
     sessionStorage.setItem(AUTH_KEY, JSON.stringify(user));
 
-    window.location.href = 'app.html';
+    window.location.href = 'app.html?guest=1';
   } catch (e) {
     alert('游客体验入口出错：' + e.message);
   }
+}
+
+function isGuestUser() {
+  const user = getCurrentUser();
+  return user && user.isGuest === true;
 }

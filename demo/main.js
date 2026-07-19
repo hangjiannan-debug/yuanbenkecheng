@@ -1009,6 +1009,48 @@ function startApp() {
   updateNavButtons();
 }
 
+// ========== Guest Demo Mode ==========
+const guestDemoData = {
+  name: '北京东城区红星幼儿园',
+  location: '北京市东城区',
+  type: '公办',
+  classCount: '12',
+  studentCount: '360',
+  features: ['自然教育', '劳动教育', '科学教育'],
+  resources: ['社区公园', '城市菜园', '青少年科技馆', '老年活动中心'],
+  goals: ['健康儿童', '探究儿童', '创造儿童', '友善儿童'],
+  plans: ['创建区级示范园', '申报课程建设成果奖'],
+  microEnv: ['沙水区', '种植园', '攀爬墙', '阅读角', '美工区'],
+  nearbyResources: ['社区公园', '小菜场', '图书馆', '消防站'],
+  teacher: ['亲和型'],
+  child: ['好奇好动', '喜欢探究']
+};
+
+async function loadGuestDemo() {
+  const user = getCurrentUser();
+  if (!user || !user.isGuest) return;
+
+  // 1. 填充表单
+  document.getElementById('f_name').value = guestDemoData.name;
+  document.getElementById('f_location').value = guestDemoData.location;
+  document.getElementById('f_type').value = guestDemoData.type;
+  document.getElementById('f_classCount').value = guestDemoData.classCount;
+  document.getElementById('f_studentCount').value = guestDemoData.studentCount;
+  document.getElementById('cf_features').value = guestDemoData.features.join('、');
+  document.getElementById('cf_resources').value = guestDemoData.resources.join('、');
+  document.getElementById('cf_goals').value = guestDemoData.goals.join('、');
+  document.getElementById('cf_plans').value = guestDemoData.plans.join('、');
+  document.getElementById('cu_micro_env').value = guestDemoData.microEnv.join('、');
+  document.getElementById('cu_nearby').value = guestDemoData.nearbyResources.join('、');
+  document.getElementById('cu_teacher').value = guestDemoData.teacher.join('、');
+  document.getElementById('cu_child').value = guestDemoData.child.join('、');
+
+  updateFormProgress();
+
+  // 2. 自动提交并运行全部 9 个 Agent
+  submitForm();
+}
+
 function goToStep(step) {
   if (step > state.maxUnlockedStep) return;
   if (state.isGenerating) return;
@@ -1369,6 +1411,21 @@ function finishAgent(agent, stepEl, index, output) {
   }
 
   updateNavButtons();
+
+  // 游客模式：自动连续运行全部 Agent
+  if (typeof isGuestUser === 'function' && isGuestUser()) {
+    setTimeout(function() {
+      state.agentConfirmed[agent.id] = true;
+      state.maxUnlockedStep = index + 2;
+      updateNavButtons();
+      if (index + 1 < agents.length) {
+        runAgent(index + 1);
+      } else {
+        buildReport();
+        goToStep(10);
+      }
+    }, 200);
+  }
 }
 
 // ========== Confirmation Logic ==========
