@@ -54,3 +54,31 @@ async function getTeachers(kinderId) {
   const all = await dbGetByIndex('accounts', 'kinderId', kinderId);
   return all.filter(a => a.role === 'teacher');
 }
+
+/**
+ * 游客快速体验：创建虚拟园长账号并登录
+ */
+async function guestLogin() {
+  const guestId = Date.now();
+  const kinderName = '演示幼儿园';
+  const name = '游客园长';
+  const phone = 'guest_' + guestId;
+  const password = 'guest';
+
+  try {
+    const kinderId = await dbAdd('kinders', { name: kinderName, createdAt: new Date().toISOString() });
+    const accountId = await dbAdd('accounts', {
+      role: 'principal', name, phone, password, kinderId, createdAt: new Date().toISOString()
+    });
+
+    const user = {
+      id: accountId, role: 'principal', name,
+      phone, kinderId, kinderName
+    };
+    sessionStorage.setItem(AUTH_KEY, JSON.stringify(user));
+
+    window.location.href = 'app.html';
+  } catch (e) {
+    alert('游客体验入口出错：' + e.message);
+  }
+}

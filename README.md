@@ -52,7 +52,16 @@ yuanbenkecheng/
 └── README.md
 ```
 
-## 快速开始（Demo）
+## 🌐 在线演示（无需安装）
+
+GitHub Pages 部署地址：
+
+**https://hangjiannan-debug.github.io/yuanbenkecheng/**
+
+- 点击「🚀 游客快速体验」即可直接进入，无需注册
+- 演示版已关闭 AI 调用，使用模板生成内容，零 API Key 风险
+
+## 快速开始（本地 Demo）
 
 ### 1. 配置 API 密钥
 
